@@ -8,20 +8,23 @@
 ###########################################
 
 import os
-from datetime import timedelta
 from celery import Celery
-from kombu import Exchange, Queue
+#from kombu import Exchange, Queue
 from conf.configure import get_broker_or_backend
-from celery import platforms
+#from celery import platforms
 
 # allow celery worker started by root
-platforms.C_FORCE_ROOT = True
+#platforms.C_FORCE_ROOT = True
 
-worker_log_path = os.path.join(os.path.dirname(os.path.dirname(__file__))+'/logs', 'celery.log')
-beat_log_path = os.path.join(os.path.dirname(os.path.dirname(__file__))+'/logs', 'beat.log')
+worker_log_path = os.path.join(os.path.dirname(os.path.dirname(__file__))+'../logs', 'celery.log')
+beat_log_path = os.path.join(os.path.dirname(os.path.dirname(__file__))+'../logs', 'beat.log')
 
-tasks = ['tasks.login', 'tasks.user', 'tasks.search', 'tasks.home', 'tasks.comment', 'tasks.repost']
+tasks = ['tasks.dns_parser', 'tasks.pinger']
 
-app = Celery('weibo_task', include=tasks, broker=get_broker_or_backend(1), backend=get_broker_or_backend(2))
+app = Celery('website_parser', include=tasks, broker=get_broker_or_backend(1), backend=get_broker_or_backend(2))
+
+app.conf.update(CELERY_DEFAULT_QUEUE='default_queue',
+                CELERYD_LOG_FILE=worker_log_path,
+                CELERYBEAT_LOG_FILE=beat_log_path)
 
 

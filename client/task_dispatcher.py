@@ -8,6 +8,7 @@
 ###########################################
 
 from celery import Celery
+from ratelimit import rate_limited
 
 from conf import get_broker_for_client
 
@@ -22,6 +23,7 @@ def get_websites():
             web_sites.append(line.strip())
     return web_sites
 
+@rate_limited(100)
 def dispatch_task():
     web_sites = get_websites()
     for web_site in web_sites:

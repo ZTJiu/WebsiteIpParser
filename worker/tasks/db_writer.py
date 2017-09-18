@@ -7,7 +7,7 @@
 # Email : zhangtianjiu@vip.qq.com
 ###########################################
 
-from sqlalchemy import Column, String, create_engine
+from sqlalchemy import Table, MetaData, Column, String, create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -15,6 +15,19 @@ from conf import get_db_info
 
 # 创建对象的基类:
 Base = declarative_base()
+# 初始化数据库连接:
+engine = create_engine('mysql+mysqlconnector://{}'.format(get_db_info))
+metadata = MetaData()
+DbSession = sessionmaker(bind=engine)
+
+def init_table():
+    ip_list_table = Table('ip_list',
+                  metadata,
+                  Column('ip', String(20), primary_key=True),
+                  Column('website', String(60)))
+    ip_list_table.create(engine)
+
+init_table()
 
 # 定义User对象:
 class Ip(Base):
@@ -23,9 +36,7 @@ class Ip(Base):
     # 表的结构:
     ip = Column(String(20), primary_key=True)
     url = Column(String(40))
-# 初始化数据库连接:
-engine = create_engine('mysql+mysqlconnector://{}'.format(get_db_info))
-DbSession = sessionmaker(bind=engine)
+
 
 def insert_data(ip, website):
     # 创建session对象:
